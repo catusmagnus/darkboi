@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Scrollbars } from 'react-custom-scrollbars';
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 
 
 // Constants:
@@ -114,6 +115,22 @@ const ShowMore = styled.div`
 	transition: all 0.3s ease;
 `;
 
+const CounterWrapper = styled.div`
+	position: absolute;
+	bottom: 0;
+	display: inline-block;
+	padding-bottom: 2.3em;
+	color: #dfe6e9;
+	font-size: 0.7em;
+	font-weight: 500;
+`;
+
+const UploadCountLoader = styled.div`
+	width: 16em;
+	height: 0.7em;
+	padding-bottom: 0.4em;
+`;
+
 const Logo = styled.img`
 	position: absolute;
 	bottom: 0;
@@ -216,6 +233,13 @@ const PDFArea = (props) => {
 										pageNumber={ index }
 									/>
 								);
+							} else {
+								return (
+									<span
+										key={ index }
+									>
+									</span>
+								);
 							}
 						})}
 					</Document>
@@ -240,19 +264,67 @@ const PDFArea = (props) => {
 	}
 };
 
+const Counter = (props) => {
+	if (props.uploadCount === null) {
+		return (
+			<CounterWrapper>
+				<SkeletonTheme color="#636e72" highlightColor="#b2bec3">
+					<UploadCountLoader>
+						<Skeleton />
+					</UploadCountLoader>
+				</SkeletonTheme>
+			</CounterWrapper>
+		);
+	} else {
+		return (
+			<CounterWrapper>
+				<span role="img" aria-label="celebration">🎉</span> { props.uploadCount } people have used darkboi! <span role="img" aria-label="celebration">🎉</span>
+			</CounterWrapper>
+		);
+	}
+	
+};
+
 const App = () => {
+	// Constants:
+	const firebase = require('firebase');
+    const rdb = firebase.database();
+
+
 	// State:
 	const [ errorPresent, setErrorPresent ] = useState(false);
 	const [ errorMessage, setErrorMessage ] = useState(null);
 	const [ file, setFile ] = useState(null);
 	const [ buttonClickable, setButtonClickable ] = useState(true);
+	const [ uploadCount, setUploadCount ] = useState(null);
+	const [ countListener, setCountListener ] = useState(null);
+
 
 	// Effects:
 	useEffect(() => {
+		// Attach listener.
+		setCountListener(rdb.ref('/uploadCount/').on('value', (snapshot) => {
+			if (snapshot !== null && buttonClickable === true) {
+				setUploadCount(snapshot.val());
+			}
+		}));
+		// eslint-disable-next-line
+	}, []);
+
+	useEffect(() => {
 		if (file !== null && errorPresent === false) {
-			console.log(file);
+			
 		}
 	}, [file, errorPresent]);
+
+	useEffect(() => {
+		return () => {
+			// Detach listener.
+			rdb.ref('/uploadCount/').off('value', countListener);
+		}
+		// eslint-disable-next-line
+	}, []);
+
 
 	// Functions:
 	const handleFileUpload = (uploadStatus) => {
@@ -270,6 +342,17 @@ const App = () => {
 			setTimeout(() => setButtonClickable(false), 300);
 		}
 	};
+
+	const updateUploadCount = () => {
+		// Update the upload count via a transaction operation.
+		rdb.ref('/uploadCount/').transaction((currentUploadCount) => {
+			if (currentUploadCount !== null) {
+				currentUploadCount++;
+			}
+			return currentUploadCount;
+		});
+	};
+
 
 	// Return:
 	return (
@@ -292,7 +375,12 @@ const App = () => {
 						file={ file }
 						buttonClickable={ buttonClickable }
 					/>
-					<label htmlFor="uploadFile">upload dat pdf</label>
+					<label
+						htmlFor="uploadFile"
+						onClick={ () => updateUploadCount() }
+					>
+						upload dat pdf
+					</label>
 					<ErrorMessage errorPresent={ errorPresent } errorMessage={ errorMessage } />
 					<PDFArea file={ file } />
 				</AntiFlexBox>
@@ -300,7 +388,14 @@ const App = () => {
 					file === null
 					?
 					(
-						<Logo src="logo.png" />
+						<>
+							<Counter
+								uploadCount={ uploadCount }
+							/>
+							<Logo
+								src="logo.png"
+							/>
+						</>
 					)
 					:
 					(

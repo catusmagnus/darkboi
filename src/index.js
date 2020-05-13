@@ -1,12 +1,17 @@
 // Packages:
 import React from 'react';
 import ReactDOM from 'react-dom';
-import * as firebase from "firebase/app";
 import * as serviceWorker from './serviceWorker';
 
 
 // Imports:
 import './index.css';
+
+
+// Firebase Imports:
+import * as firebase from "firebase/app";
+import "firebase/analytics";
+import "firebase/database";
 
 
 // Components:
