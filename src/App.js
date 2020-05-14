@@ -6,6 +6,10 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 
 
+// Components:
+import Sidebar from './components/Sidebar';
+
+
 // Constants:
 import {
 	INVALID_FILE_TYPE,
@@ -360,6 +364,7 @@ const App = () => {
 			style={{ height: '100vh' }}
 		>
 			<Wrapper errorPresent={ errorPresent }>
+				<Sidebar />
 				<AntiFlexBox>
 					<UploadFile
 						type="file"
@@ -408,5 +413,5 @@ const App = () => {
 };
 
 
-// Exports:
+// Export:
 export default App;
