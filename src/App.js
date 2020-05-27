@@ -12,6 +12,10 @@ import Sidebar from './components/Sidebar';
 
 // Constants:
 import {
+	DEFAULT_UPLOAD_LIMIT
+} from './constants';
+
+import {
 	INVALID_FILE_TYPE,
 	BIG_FILE
 } from './constants/errors';
@@ -169,7 +173,7 @@ const uploadFile = (event) => {
 		}
 
 		// Validate file size.
-		if (fileSize > (50 * 1000000)) {
+		if (fileSize > DEFAULT_UPLOAD_LIMIT) {
 			// File size is greater than 50 MB.
 			return {
 				error: true,
@@ -363,7 +367,9 @@ const App = () => {
 		<Scrollbars
 			style={{ height: '100vh' }}
 		>
-			<Wrapper errorPresent={ errorPresent }>
+			<Wrapper
+				errorPresent={ errorPresent }
+			>
 				<Sidebar />
 				<AntiFlexBox>
 					<UploadFile
@@ -386,8 +392,13 @@ const App = () => {
 					>
 						upload dat pdf
 					</label>
-					<ErrorMessage errorPresent={ errorPresent } errorMessage={ errorMessage } />
-					<PDFArea file={ file } />
+					<ErrorMessage
+						errorPresent={ errorPresent }
+						errorMessage={ errorMessage }
+					/>
+					<PDFArea
+						file={ file }
+					/>
 				</AntiFlexBox>
 				{
 					file === null

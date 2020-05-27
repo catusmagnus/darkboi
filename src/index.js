@@ -12,6 +12,7 @@ import './index.css';
 import * as firebase from "firebase/app";
 import "firebase/analytics";
 import "firebase/database";
+import "firebase/firestore";
 
 
 // Components:
@@ -43,4 +44,4 @@ ReactDOM.render(
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+serviceWorker.register();
